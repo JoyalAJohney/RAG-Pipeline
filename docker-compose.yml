@@ -40,7 +40,7 @@ services:
       - S3_UPLOAD_BUCKET=${S3_UPLOAD_BUCKET}
       - PROCESSING_QUEUE_URL=${PROCESSING_QUEUE_URL}
 
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
     depends_on:
       localstack:
         condition: service_healthy
@@ -61,21 +61,39 @@ services:
       - S3_UPLOAD_BUCKET=${S3_UPLOAD_BUCKET}
       - S3_PROCESSED_BUCKET=${S3_PROCESSED_BUCKET}
       
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
     depends_on:
       localstack:
         condition: service_healthy
     networks:
       - rag-network
 
-  # embedding-service:
-  #   build: ./services/embedding-service
-  #   environment:
-  #     - CHROMA_URL=http://chroma:8000
-  #     - AWS_ENDPOINT_URL=http://localstack:4566
-  #     - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-  #   networks:
-  #     - rag-network
+  embedding-service:
+    build: ./services/embedding-service
+    environment:
+      - EMBEDDING_SERVICE_PORT=${EMBEDDING_SERVICE_PORT}
+
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ENDPOINT_URL=${AWS_ENDPOINT_URL}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      
+      - EMBEDDING_QUEUE_URL=${EMBEDDING_QUEUE_URL}
+      - S3_PROCESSED_BUCKET=${S3_PROCESSED_BUCKET}
+
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL}
+      
+      - CHROMA_HOST=${CHROMA_HOST}
+      - CHROMA_PORT=${CHROMA_PORT}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
+    depends_on:
+      localstack:
+        condition: service_healthy
+      chroma:
+        condition: service_started
+    networks:
+      - rag-network
 
   # query-service:
   #   build: ./services/query-service
@@ -110,14 +128,14 @@ services:
   #   networks:
   #     - rag-network
 
-  # chroma:
-  #   image: ghcr.io/chroma-core/chroma:latest
-  #   volumes:
-  #     - chroma_data:/chroma/chroma
-  #   ports:
-  #     - "${CHROMA_PORT}:8000"
-  #   networks:
-  #     - rag-network
+  chroma:
+    image: ghcr.io/chroma-core/chroma:latest
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "${CHROMA_PORT}:8000"
+    networks:
+      - rag-network
 
 volumes:
   chroma_data:
