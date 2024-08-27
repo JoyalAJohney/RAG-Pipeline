@@ -19,6 +19,7 @@ class Config:
     S3_PROCESSED_BUCKET = os.getenv("S3_PROCESSED_BUCKET")
 
     # Database
+    COLLECTION_NAME = os.getenv("COLLECTION_NAME")
     CHROMA_HOST = os.getenv("CHROMA_HOST")
     CHROMA_PORT = os.getenv("CHROMA_PORT")
     DATABASE_URL = os.getenv("DATABASE_URL")

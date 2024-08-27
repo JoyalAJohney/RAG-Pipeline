@@ -38,3 +38,10 @@ class RetrieveResponse(BaseModel):
                 "combined_content": "Content: Paris is the capital of France.\nSource: geography.pdf, Page 15"
             }
         }
+
+
+class EmbeddingRequest(BaseModel):
+    text: str
+
+class EmbeddingResponse(BaseModel):
+    embedding: list[float]

@@ -8,7 +8,7 @@ client = chromadb.HttpClient(
     port=Config.CHROMA_PORT,
 )
 
-collection_name = "document_embedding"
+collection_name = Config.COLLECTION_NAME
 collection = client.get_or_create_collection(collection_name)
 
 
